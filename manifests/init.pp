@@ -1,51 +1,58 @@
 # == Class: fail2ban
 #
+type Ensured      = Enum['absent', 'latest', 'present', 'purged']
+type ServiceState = Enum['running', 'stopped']
+type PackageList  = Optional[Array[String]]
+type AbsPath      = Stdlib::Absolutepath
+type Config       = Hash[String, Variant[String, Numeric]]
+type JailConfigs  = Hash[Config]
+type IPList       = Array[Stdlib::IP::Address]
+
 class fail2ban (
-  Enum['absent', 'latest', 'present', 'purged'] $package_ensure = 'present',
-  String[1] $package_name = $::fail2ban::params::package_name,
-  Optional[Array[String]] $package_list = $::fail2ban::params::package_list,
+  AbsPath           $config_dir_path          = $::fail2ban::params::config_dir_path,
+  AbsPath           $config_dir_filter_path   = $::fail2ban::params::config_dir_filter_path,
+  Boolean           $config_dir_purge         = false,
+  Boolean           $config_dir_recurse       = true,
+  Optional[String]  $config_dir_source        = undef,
 
-  Stdlib::Absolutepath $config_dir_path = $::fail2ban::params::config_dir_path,
-  Stdlib::Absolutepath $config_dir_filter_path = $::fail2ban::params::config_dir_filter_path,
-  Boolean $config_dir_purge = false,
-  Boolean $config_dir_recurse = true,
-  Optional[String] $config_dir_source = undef,
+  AbsPath           $config_file_path         = $::fail2ban::params::config_file_path,
+  String            $config_file_owner        = $::fail2ban::params::config_file_owner,
+  String            $config_file_group        = $::fail2ban::params::config_file_group,
+  String            $config_file_mode         = $::fail2ban::params::config_file_mode,
+  String            $config_file_before       = $::fail2ban::params::before_file,
+  Optional[String]  $config_file_source       = undef,
+  Optional[String]  $config_file_string       = undef,
+  Optional[String]  $config_file_template     = "fail2ban/${facts['os']['distro']}/${facts['os']['codename']}",
+  String            $config_file_notify       = $::fail2ban::params::config_file_notify,
+  String            $config_file_require      = $::fail2ban::params::config_file_require,
+  Config            $config_file_hash         = {},
+  Hash              $config_file_options_hash = {},
 
-  Stdlib::Absolutepath $config_file_path = $::fail2ban::params::config_file_path,
-  String[1] $config_file_owner = $::fail2ban::params::config_file_owner,
-  String[1] $config_file_group = $::fail2ban::params::config_file_group,
-  String[1] $config_file_mode = $::fail2ban::params::config_file_mode,
-  String[1] $config_file_before = $::fail2ban::params::before_file,
-  Optional[String[1]] $config_file_source = undef,
-  Optional[String[1]] $config_file_string = undef,
-  Optional[String[1]] $config_file_template = undef,
+  ServiceState      $service_ensure           = 'running',
+  String            $service_name             = $::fail2ban::params::service_name,
+  Boolean           $service_enable           = true,
 
-  String[1] $config_file_notify = $::fail2ban::params::config_file_notify,
-  String[1] $config_file_require = $::fail2ban::params::config_file_require,
+  String            $action                   = 'action_mb',
+  Integer[0]        $bantime                  = 432000,
+  String            $email                    = "fail2ban@${::domain}",
+  String            $sender                   = "fail2ban@${::fqdn}",
+  String            $iptables_chain           = 'INPUT',
+  Array[String]     $jails                    = ['ssh', 'ssh-ddos'],
+  Integer[0]        $maxretry                 = 3,
+  Array             $whitelist                = ['127.0.0.1/8', '192.168.56.0/24'],
+  JailConfigs       $custom_jails             = undef,
+  String            $banaction                = 'iptables-multiport'
 
-  Hash[String[1], Any] $config_file_hash = {},
-  Hash $config_file_options_hash = {},
-
-  Enum['running', 'stopped'] $service_ensure = 'running',
-  String[1] $service_name = $::fail2ban::params::service_name,
-  Boolean $service_enable = true,
-
-  String[1] $action = 'action_mb',
-  Integer[0] $bantime = 432000,
-  String[1] $email = "fail2ban@${::domain}",
-  String[1] $sender = "fail2ban@${::fqdn}",
-  String[1] $iptables_chain = 'INPUT',
-  Array[String[1]] $jails = ['ssh', 'ssh-ddos'],
-  Integer[0] $maxretry = 3,
-  Array $whitelist = ['127.0.0.1/8', '192.168.56.0/24'],
-  $custom_jails = undef,
-  String[1] $banaction = 'iptables-multiport',
 ) inherits ::fail2ban::params {
+
+  case $facts['os']['family'] {
+    /Debian|RedHat/: {}
+    default: { fail("${::operatingsystem} not supported.") }
+  }
+
   $config_file_content = default_content($config_file_string, $config_file_template)
 
-  if $config_file_hash {
-    create_resources('fail2ban::define', $config_file_hash)
-  }
+  create_resources('fail2ban::define', $config_file_hash)
 
   if $package_ensure == 'absent' {
     $config_dir_ensure  = 'directory'
@@ -65,7 +72,6 @@ class fail2ban (
   }
 
   anchor { 'fail2ban::begin': }
-  -> class { '::fail2ban::install': }
   -> class { '::fail2ban::config': }
   ~> class { '::fail2ban::service': }
   -> anchor { 'fail2ban::end': }
