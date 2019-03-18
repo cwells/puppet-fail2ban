@@ -5,7 +5,7 @@ type ServiceState = Enum['running', 'stopped']
 type PackageList  = Optional[Array[String]]
 type AbsPath      = Stdlib::Absolutepath
 type Config       = Hash[String, Variant[String, Numeric]]
-type JailConfigs  = Hash[Config]
+type JailConfigs  = Hash[String, Config]
 type IPList       = Array[Stdlib::IP::Address]
 
 class fail2ban (
