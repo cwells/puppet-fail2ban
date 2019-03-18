@@ -67,6 +67,6 @@ define fail2ban::jail (
     group   => $config_file_group,
     mode    => $config_file_mode,
     notify  => $config_file_notify,
-    require => $config_file_require,Array[Stdlib::IP::Address]
+    require => $config_file_require,
   }
 }
