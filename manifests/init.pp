@@ -22,7 +22,7 @@ class fail2ban (
   String                $config_file_before       = $::fail2ban::params::before_file,
   Optional[String]      $config_file_source       = undef,
   Optional[String]      $config_file_string       = undef,
-  Optional[String]      $config_file_template     = "fail2ban/${facts['os']['distro']['id']}/${split($facts['os']['distro']['release']['major'], '\.')[0]}",
+  Optional[String]      $config_file_template     = "fail2ban/${facts['os']['distro']['id']}/${split($facts['os']['distro']['release']['major'], '\.')[0]}/etc/fail2ban/jail.conf.epp",
   String                $config_file_notify       = $::fail2ban::params::config_file_notify,
   String                $config_file_require      = $::fail2ban::params::config_file_require,
   Config                $config_file_hash         = {},
