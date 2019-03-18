@@ -2,13 +2,14 @@
 #
 type Ensured      = Enum['absent', 'latest', 'present', 'purged']
 type ServiceState = Enum['running', 'stopped']
-type PackageList  = Optional[Array[String]]
 type AbsPath      = Stdlib::Absolutepath
 type Config       = Hash[String, Variant[String, Numeric]]
 type JailConfigs  = Hash[String, Config]
 type IPList       = Array[Stdlib::IP::Address]
 
 class fail2ban (
+  String                $package_ensure           = latest,
+
   AbsPath               $config_dir_path          = $::fail2ban::params::config_dir_path,
   AbsPath               $config_dir_filter_path   = $::fail2ban::params::config_dir_filter_path,
   Boolean               $config_dir_purge         = false,
@@ -48,6 +49,10 @@ class fail2ban (
   case $facts['os']['family'] {
     /Debian|RedHat/: {}
     default: { fail("${::operatingsystem} not supported.") }
+  }
+
+  package { 'fail2ban':
+    ensure => $package_ensure;
   }
 
   $config_file_content = default_content($config_file_string, $config_file_template)
