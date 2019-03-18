@@ -6,7 +6,7 @@ class fail2ban::config {
   $config_custom_actions = hiera_hash('fail2ban::custom_actions', {})
 
   file { 'fail2ban.dir':
-    ensure  => $::fail2ban::config_dir_ensure,
+    ensure  => directory,
     path    => $::fail2ban::config_dir_path,
     force   => $::fail2ban::config_dir_purge,
     purge   => $::fail2ban::config_dir_purge,
@@ -18,7 +18,7 @@ class fail2ban::config {
 
   if $::fail2ban::config_file_path {
     file { 'fail2ban.conf':
-      ensure  => $::fail2ban::config_file_ensure,
+      ensure  => file,
       path    => $::fail2ban::config_file_path,
       owner   => $::fail2ban::config_file_owner,
       group   => $::fail2ban::config_file_group,

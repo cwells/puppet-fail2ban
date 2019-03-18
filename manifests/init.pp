@@ -54,27 +54,6 @@ class fail2ban (
 
   create_resources('fail2ban::define', $config_file_hash)
 
-  if $package_ensure == 'absent' {
-    $config_dir_ensure  = 'directory'
-    $config_file_ensure = 'present'
-    $_service_ensure    = 'stopped'
-    $_service_enable    = false
-  }
-
-  elsif $package_ensure == 'purged' {
-    $config_dir_ensure  = 'absent'
-    $config_file_ensure = 'absent'
-    $_service_ensure    = 'stopped'
-    $_service_enable    = false
-  }
-
-  else {
-    $config_dir_ensure  = 'directory'
-    $config_file_ensure = 'present'
-    $_service_ensure    = $service_ensure
-    $_service_enable    = $service_enable
-  }
-
   anchor { 'fail2ban::begin': }
   -> class { '::fail2ban::config': }
   ~> class { '::fail2ban::service': }
