@@ -4,7 +4,7 @@ define fail2ban::jail (
   Optional[String]     $filter_includes          = undef,
   Optional[String]     $filter_failregex         = undef,
   Optional[String]     $filter_ignoreregex       = undef,
-                       $filter_additional_config = undef,
+  Optional[String]     $filter_additional_config = undef,
   Boolean              $enabled                  = true,
   Optional[String]     $action                   = undef,
   String               $filter                   = $title,
