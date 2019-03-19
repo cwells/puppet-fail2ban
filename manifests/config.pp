@@ -2,11 +2,11 @@
 #
 class fail2ban::config {
   # Load custom jails/actions definition
-  $config_custom_jails = hiera_hash('fail2ban::custom_jails', undef)
-  $config_custom_actions = hiera_hash('fail2ban::custom_actions', undef)
+  $config_custom_jails = hiera_hash('fail2ban::custom_jails', {})
+  $config_custom_actions = hiera_hash('fail2ban::custom_actions', {})
 
   file { 'fail2ban.dir':
-    ensure  => $::fail2ban::config_dir_ensure,
+    ensure  => directory,
     path    => $::fail2ban::config_dir_path,
     force   => $::fail2ban::config_dir_purge,
     purge   => $::fail2ban::config_dir_purge,
@@ -18,7 +18,7 @@ class fail2ban::config {
 
   if $::fail2ban::config_file_path {
     file { 'fail2ban.conf':
-      ensure  => $::fail2ban::config_file_ensure,
+      ensure  => file,
       path    => $::fail2ban::config_file_path,
       owner   => $::fail2ban::config_file_owner,
       group   => $::fail2ban::config_file_group,
@@ -30,15 +30,8 @@ class fail2ban::config {
     }
   }
 
-  # Custom jails definition
-  if $config_custom_jails {
-    create_resources('fail2ban::jail', $config_custom_jails)
-  }
-
-  # Custom actions definition
-  if $config_custom_actions {
-    create_resources('fail2ban::action', $config_custom_actions)
-  }
+  create_resources('fail2ban::jail', $config_custom_jails)
+  create_resources('fail2ban::action', $config_custom_actions)
 
   # Operating system specific configuration
   case $facts['os']['family'] {

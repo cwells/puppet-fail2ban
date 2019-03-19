@@ -1,14 +1,14 @@
 # == Define: fail2ban::action
 #
 define fail2ban::action (
-  String $actionban = undef,
-  String $actionunban = undef,
+  String           $actionban           = undef,
+  String           $actionunban         = undef,
 
-  Optional[String] $config_file_owner = $fail2ban::config_file_owner,
-  Optional[String] $config_file_group = $fail2ban::config_file_group,
-  Optional[String] $config_file_mode = $fail2ban::config_file_mode,
-  Optional[String] $config_file_source = $fail2ban::config_file_source,
-  Optional[String] $config_file_notify = $fail2ban::config_file_notify,
+  Optional[String] $config_file_owner   = $fail2ban::config_file_owner,
+  Optional[String] $config_file_group   = $fail2ban::config_file_group,
+  Optional[String] $config_file_mode    = $fail2ban::config_file_mode,
+  Optional[String] $config_file_source  = $fail2ban::config_file_source,
+  Optional[String] $config_file_notify  = $fail2ban::config_file_notify,
   Optional[String] $config_file_require = $fail2ban::config_file_require,
 ) {
 
