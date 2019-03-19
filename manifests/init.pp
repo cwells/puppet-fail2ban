@@ -8,7 +8,7 @@ type JailConfigs  = Hash[String, Config]
 type IPList       = Array[Stdlib::IP::Address]
 
 class fail2ban (
-  String                $package_ensure           = latest,
+  String                $package_ensure           = present,
 
   AbsPath               $config_dir_path          = $::fail2ban::params::config_dir_path,
   AbsPath               $config_dir_filter_path   = $::fail2ban::params::config_dir_filter_path,
@@ -38,7 +38,7 @@ class fail2ban (
   String                $email                    = "fail2ban@${::domain}",
   String                $sender                   = "fail2ban@${::fqdn}",
   String                $iptables_chain           = 'INPUT',
-  Array[String]         $jails                    = ['ssh', 'ssh-ddos'],
+  Array[String]         $jails                    = [],
   Integer[0]            $maxretry                 = 3,
   Array                 $whitelist                = ['127.0.0.1/8', '192.168.56.0/24'],
   Optional[JailConfigs] $custom_jails             = undef,
@@ -52,7 +52,7 @@ class fail2ban (
   }
 
   package { 'fail2ban':
-    ensure => $package_ensure;
+    ensure => $package_ensure
   }
 
   $config_file_content = default_content($config_file_string, $config_file_template)
